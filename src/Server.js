@@ -1,9 +1,19 @@
 import http from "http";
 import { URL } from "url";
+import fs from "fs";
 
 export default class Server {
     static #routes = [];
     static #server = http.createServer((request, response) => this.#onRequest(request, response));
+
+    static types = {
+        ".html": "text/html",
+        ".ico": "image/vnd.microsoft.icon",
+        ".css": "text/css",
+        ".js": "text/javascript",
+        ".png": "image/png",
+        ".json": "application/json"
+    };
 
     static async #onRequest(request, response) {
         try {
@@ -11,14 +21,31 @@ export default class Server {
 
             request.server.url = new URL(request.url, `http://${request.headers.host}`);
 
-            console.log(request.server.url.pathname);
-
             const route = this.#routes.find((route) => route.method == request.method && route.path == request.server.url.pathname);
 
             if(!route) {
-                response.writeHead(404, "File Not Found");
+                if(request.server.url.pathname.includes('.')) {
+                    const index = request.server.url.pathname.lastIndexOf('.');
+                    const extension = request.server.url.pathname.substring(index);
 
-                return response.end();
+                    const mime = this.types[extension] ?? "application/octet-stream";
+
+                    const file = `./build/${request.server.url.pathname}`;
+
+                    if(!fs.existsSync(file)) {
+                        response.writeHead(400, "File Not Found");
+
+                        return response.end();
+                    }
+
+                    response.writeHead(200, "OK", { "Content-Type": mime });
+
+                    return response.end(fs.readFileSync(file, "utf-8"));
+                }
+
+                response.writeHead(200, "OK", { "Content-Type": "text/html" });
+
+                return response.end(fs.readFileSync("./build/index.html", "utf-8"));
             }
 
             response.writeHead(200, "OK");
