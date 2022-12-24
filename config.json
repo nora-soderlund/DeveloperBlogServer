@@ -1,0 +1,10 @@
+{
+    "port": 91,
+    
+    "database": {
+        "host": "localhost",
+        "user": "root",
+        "password": "password",
+        "database": "developer_blog"
+    }
+}
