@@ -2,6 +2,8 @@ import http from "http";
 import { URL } from "url";
 import fs from "fs";
 
+import config from "./../config.json" assert { type: "json" };
+
 export default class Server {
     static #routes = [];
     static #server = http.createServer((request, response) => this.#onRequest(request, response));
@@ -33,22 +35,22 @@ export default class Server {
                     const file = `./build/${request.server.url.pathname}`;
 
                     if(!fs.existsSync(file)) {
-                        response.writeHead(400, "File Not Found");
+                        response.writeHead(400, "File Not Found", config.cors);
 
                         return response.end();
                     }
 
-                    response.writeHead(200, "OK", { "Content-Type": mime });
+                    response.writeHead(200, "OK", { ...config.cors, "Content-Type": mime });
 
                     return response.end(fs.readFileSync(file, "utf-8"));
                 }
 
-                response.writeHead(200, "OK", { "Content-Type": "text/html" });
+                response.writeHead(200, "OK", { ...config.cors, "Content-Type": "text/html" });
 
                 return response.end(fs.readFileSync("./build/index.html", "utf-8"));
             }
 
-            response.writeHead(200, "OK");
+            response.writeHead(200, "OK", config.cors);
 
             const result = await route.onRequest(request, response);
 
@@ -59,7 +61,7 @@ export default class Server {
         catch(error) {
             console.error(error);
 
-            response.writeHead(400, "Internal Server Error");
+            response.writeHead(400, "Internal Server Error", config.cors);
             response.end();
         }
     };
