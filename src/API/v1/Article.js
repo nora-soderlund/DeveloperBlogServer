@@ -9,6 +9,23 @@ shiki.getHighlighter({ theme: "github-dark" }).then((_highlighter) => {
     highlighter = _highlighter;
 });
 
+Server.register("META", "/articles/(.*)", async (request, response, matches) => {
+    const slug = matches[1];
+
+    const article = await Database.querySingleAsync(`SELECT title, short, timestamp FROM articles WHERE slug = ${Database.escape(slug)}`);
+
+    if(!article)
+        return null;
+
+    return {
+        type: "article",
+
+        title: article.title,
+        description: article.short,
+        type_published_time: new Date(article.timestamp).toISOString()
+    };
+});
+
 Server.register("GET", "/api/v1/article", async (request, response) => {
     const compact = request.server.url.searchParams.get("compact");
     const slug = request.server.url.searchParams.get("slug");

@@ -23,7 +23,7 @@ export default class Server {
 
             request.server.url = new URL(request.url, `http://${request.headers.host}`);
 
-            const route = this.#routes.find((route) => route.method == request.method && route.path == request.server.url.pathname);
+            let route = this.#routes.find((route) => route.method == request.method && route.path == request.server.url.pathname);
 
             if(!route) {
                 if(request.server.url.pathname.includes('.')) {
@@ -47,7 +47,45 @@ export default class Server {
 
                 response.writeHead(200, "OK", { ...config.cors, "Content-Type": "text/html" });
 
-                return response.end(fs.readFileSync("./build/index.html", "utf-8"));
+                let matches = null;
+
+                route = this.#routes.find((route) => {
+                    if(route.method != "META")
+                        return false;
+
+                    matches = new RegExp(route.path, "g").exec(request.server.url.pathname);
+
+                    if(matches)
+                        return true;
+
+                    return false;
+                });
+
+                let content = fs.readFileSync("./build/index.html", "utf-8");
+
+                let meta = {
+                    url: request.server.url.href,
+
+                    title: "Nora Söderlund's Developer Blog",
+                    description: "Articles written based of real life platform uses.",
+
+                    type: "website",
+                    type_published_time: new Date().toISOString()
+                };
+               
+                const routeMeta = await route.onRequest(request, response, matches);
+
+                if(routeMeta)
+                    meta = { ...meta, ...routeMeta };
+
+                if(meta.title != "Nora Söderlund's Developer Blog")
+                    meta.title += " - Nora Söderlund's Developer Blog";
+
+                Object.entries(meta).forEach(([key, value]) => {
+                    content = content.replaceAll("${" + key + "}", value);
+                });
+
+                return response.end(content);
             }
 
             response.writeHead(200, "OK", config.cors);
