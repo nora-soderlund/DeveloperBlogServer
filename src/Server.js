@@ -14,7 +14,8 @@ export default class Server {
         ".css": "text/css",
         ".js": "text/javascript",
         ".png": "image/png",
-        ".json": "application/json"
+        ".json": "application/json",
+        ".svg": "image/svg+xml"
     };
 
     static async #onRequest(request, response) {
