@@ -39,12 +39,12 @@ Server.register("GET", "/api/v1/articles", async (request, response) => {
     }
 
     return {
-        end: rows.sort((a, b) => b.id - a.id)[0].id,
-
         paginatable: rows.length == limit,
 
         articles: rows.map((row) => {
             return row.slug;
-        })
+        }),
+
+        end: rows.sort((a, b) => b.id - a.id)[0].id
     };
 });
