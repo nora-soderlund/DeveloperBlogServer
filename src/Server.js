@@ -73,10 +73,12 @@ export default class Server {
                     type_published_time: new Date().toISOString()
                 };
                
-                const routeMeta = await route.onRequest(request, response, matches);
+                if(route) {
+                    const routeMeta = await route.onRequest(request, response, matches);
 
-                if(routeMeta)
-                    meta = { ...meta, ...routeMeta };
+                    if(routeMeta)
+                        meta = { ...meta, ...routeMeta };
+                }
 
                 if(meta.title != "Nora Söderlund's Developer Blog")
                     meta.title += " - Nora Söderlund's Developer Blog";
