@@ -10,7 +10,24 @@ An API endpoint for the [Developer Blog](https://github.com/nora-soderlund/Devel
     ```bat
     npm install
     ```
-3. Start the project
+3. Import database.sql to a MySQL server.
+4. Set up a config.json file in the root directory:
+    ```json
+    {
+        "port": 80,
+
+        "cors": {},
+
+        "database": {
+            "host": "localhost",
+            "user": "root",
+            "password": "password",
+            "database": "developer_blog"
+        }
+    }
+    ```
+    The cors property accepts any [HTTP response header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers) property.
+5. Start the project
     - Run in development environment:
         1. Run the start script:
             ```bat
