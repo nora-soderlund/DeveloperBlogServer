@@ -30,7 +30,7 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
     const compact = request.server.url.searchParams.get("compact");
     const slug = request.server.url.searchParams.get("slug");
 
-    const article = await Database.querySingleAsync(`SELECT id, title, short, content, timestamp FROM articles WHERE slug = ${Database.escape(slug)}`);
+    const article = await Database.querySingleAsync(`SELECT id, slug, title, short, content, timestamp FROM articles WHERE slug = ${Database.escape(slug)}`);
 
     if(!article)
         return null;
@@ -65,6 +65,8 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
     }
 
     return {
+        slug: article.slug,
+
         title: article.title,
         short: article.short,
         content,
