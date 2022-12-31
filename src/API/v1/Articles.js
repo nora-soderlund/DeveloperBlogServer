@@ -7,12 +7,13 @@ Server.register("GET", "/api/v1/articles", async (request, response) => {
     const start = Math.max(0, parseInt(request.server.url.searchParams.get("start")));
 
     let query = `
-        SELECT articles.id, articles.slug, (article_tags.tag = 1) AS featured FROM articles
+        SELECT articles.id, articles.slug FROM articles
             INNER JOIN article_tags ON article_tags.article = articles.id
+            INNER JOIN tags ON tags.id = article_tags.tag
         WHERE hidden != 1 ${(start != 0)?(`AND articles.id < ${start}`):("")}
         GROUP BY articles.slug
         ORDER BY
-            featured DESC, timestamp DESC
+            tags.priority DESC, timestamp DESC
         LIMIT ${limit}
     `;
 
@@ -20,11 +21,11 @@ Server.register("GET", "/api/v1/articles", async (request, response) => {
 
     if(tagsParams) {
         query = `
-            SELECT articles.id, articles.slug, (article_tags.tag = 1) AS featured FROM articles
+            SELECT articles.id, articles.slug FROM articles
                 INNER JOIN tags ON (${tagsParams.split(',').map((tag) => `tags.slug = ${Database.escape(tag)}`).join(" OR ")})
                 INNER JOIN article_tags ON tag = tags.id
             WHERE articles.id = article_tags.article ${(start != 0)?(`AND articles.id < ${start}`):("")}
-            ORDER BY featured DESC, articles.timestamp DESC
+            ORDER BY tags.priority DESC, articles.timestamp DESC
             LIMIT ${limit}
         `;
     }

@@ -40,7 +40,7 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
     let tags = [];
 
     if(articleTags.length)
-        tags = await Database.queryAsync(`SELECT slug, text, icon FROM tags WHERE (${articleTags.map((articleTag) => `id = ${Database.escape(articleTag.tag)}`).join(" OR ")})`);
+        tags = await Database.queryAsync(`SELECT slug, text, icon, shimmer, color FROM tags WHERE (${articleTags.map((articleTag) => `id = ${Database.escape(articleTag.tag)}`).join(" OR ")})`);
 
     let content = article.content;
 
@@ -78,7 +78,9 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
             return {
                 slug: tag.slug,
                 text: tag.text,
-                icon: tag.icon
+                icon: tag.icon,
+                shimmer: tag.shimmer,
+                color: tag.color
             };
         })
     };
