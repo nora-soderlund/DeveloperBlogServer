@@ -44,16 +44,17 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
 
     let content = article.content;
 
-    const matches = Array.from(article.content.matchAll(/\{CODE (\d+)\}/g));
+    const matches = Array.from(article.content.matchAll(/\{CODE (.*)\}/g));
 
-    if(matches.length) {
-        const codes = await Database.queryAsync(`SELECT id, language, code FROM codes WHERE (${matches.map((match) => `id = ${Database.escape(match[1])}`).join(" OR ")})`);
+    for(let index = 0; index < matches.length; index++) {
+        const match = matches[index];
+        const parameters = match[1].split(" ");
 
-        codes.forEach((code) => {
-            const html = highlighter.codeToHtml(code.code, { lang: code.language });
+        const row = await Database.querySingleAsync(`SELECT language, code FROM codes WHERE id = ${Database.escape(parameters[0])}`);
 
-            content = content.replaceAll(`{CODE ${code.id}}`, `<div class="article-code">${html}</div>`);
-        });
+        const html = highlighter.codeToHtml(row.code, { lang: row.language });
+
+        content = content.replace(match[0], `<div class="article-code" ${(parameters.length >= 2)?(`style="font-family: ${parameters[1]}"`):("")}>${html}</div>`);
     }
 
     let feedback = null;
