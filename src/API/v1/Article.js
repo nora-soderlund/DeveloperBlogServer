@@ -60,9 +60,7 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
     let feedback = null;
 
     if(!compact) {
-        const user = request.socket.remoteAddress;
-
-        feedback = await Database.querySingleAsync(`SELECT positive FROM article_feedback WHERE article = ${Database.escape(article.id)} AND user = ${Database.escape(user)}`);
+        feedback = await Database.querySingleAsync(`SELECT positive FROM article_feedback WHERE article = ${Database.escape(article.id)} AND user = ${Database.escape(request.server.client.address)}`);
     }
 
     return {

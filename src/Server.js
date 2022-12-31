@@ -20,9 +20,13 @@ export default class Server {
 
     static async #onRequest(request, response) {
         try {
-            request.server = {};
-
-            request.server.url = new URL(request.url, `http://${request.headers.host}`);
+            request.server = {
+                url: new URL(request.url, `http://${request.headers.host}`),
+                
+                client: {
+                    address: request.headers["CF-Connecting-IP"] ?? request.socket.remoteAddress
+                }
+            };
 
             let route = this.#routes.find((route) => route.method == request.method && route.path == request.server.url.pathname);
 
