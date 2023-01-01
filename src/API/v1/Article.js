@@ -40,7 +40,7 @@ Server.register("GET", "/api/v1/article", async (request, response) => {
     let tags = [];
 
     if(articleTags.length)
-        tags = await Database.queryAsync(`SELECT slug, text, icon, shimmer, color FROM tags WHERE (${articleTags.map((articleTag) => `id = ${Database.escape(articleTag.tag)}`).join(" OR ")})`);
+        tags = await Database.queryAsync(`SELECT slug, text, icon, shimmer, color FROM tags WHERE (${articleTags.map((articleTag) => `id = ${Database.escape(articleTag.tag)}`).join(" OR ")}) ORDER BY priority DESC`);
 
     let content = article.content;
 
